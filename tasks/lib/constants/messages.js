@@ -33,5 +33,17 @@ module.exports = {
   },
   CONNECTED_TO_REDIS: {
     message: 'Connected to Redis [{a}:{b}]'
+  },
+  REDIS_ERROR: {
+    message: 'Redis error when getting key: {a}'
+  },
+  USING_KEY: {
+    message: 'Using key: "{a}"'
+  },
+  KEY_NOT_SUPPLIED: {
+    message: 'Must supply index key to activate, eg:\n   grunt autobots:activate --key=bcad1324'
+  },
+  INDEX_ENTRY_DOES_NOT_EXIST_FOR_KEY: {
+    message: 'index.html does not exist for key: "{a}"'
   }
 };

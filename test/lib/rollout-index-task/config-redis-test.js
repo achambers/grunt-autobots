@@ -2,7 +2,7 @@
 
 var grunt = require('grunt');
 var sinon = require('sinon');
-var RolloutIndexTask = require('../../tasks/lib/rollout-index-task');
+var RolloutIndexTask = require('../../../tasks/lib/rollout-index-task');
 var config;
 
 exports.config_redis = {

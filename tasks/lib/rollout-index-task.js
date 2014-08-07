@@ -3,7 +3,7 @@
 var grunt = require('grunt');
 var RSVP = require('rsvp');
 var redis = require('redis');
-var MESSAGES = require('./messages');
+var MESSAGES = require('./constants/messages');
 
 var RolloutIndexTask = function(config) {
   this._config = {};

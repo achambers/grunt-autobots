@@ -2,22 +2,13 @@
 
 var grunt = require('grunt');
 var sinon = require('sinon');
-var RolloutIndexTask = require('../../tasks/lib/rollout-index-task');
+var RolloutIndexTask = require('../../../tasks/lib/rollout-index-task');
 var config;
 var redis = require('redis');
 var client;
 
 exports.upload_index_to_redis = {
   setUp: function(done) {
-    //REDIS
-    client = redis.createClient();
-
-    client.on('ready', function() {
-      done();
-    });
-
-    client.del('index:abc123');
-
     //ENV VARS
     process.env.CIRCLE_SHA1 = 'abc123';
 
@@ -30,6 +21,15 @@ exports.upload_index_to_redis = {
     sinon.spy(grunt.log, 'ok');
     sinon.spy(grunt.log, 'subhead');
     sinon.spy(grunt.log, 'writeln');
+
+    //REDIS
+    client = redis.createClient();
+
+    client.on('ready', function() {
+      done();
+    });
+
+    client.del('index:abc123');
   },
 
   tearDown: function(done) {

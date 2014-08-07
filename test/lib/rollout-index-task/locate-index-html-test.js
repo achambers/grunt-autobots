@@ -2,44 +2,46 @@
 
 var grunt = require('grunt');
 var sinon = require('sinon');
-var RolloutIndexTask = require('../../tasks/lib/rollout-index-task');
+var RolloutIndexTask = require('../../../tasks/lib/rollout-index-task');
 var config;
 
-exports.env_circle_sha = {
+exports.locate_index_html = {
   setUp: function(done) {
     config = grunt.config('autobots');
+
+    process.env.CIRCLE_SHA1 = 'abc123';
     sinon.spy(grunt.log, 'ok');
     sinon.spy(grunt.log, 'error');
     done();
   },
-
   tearDown: function(done) {
     grunt.log.ok.restore();
     grunt.log.error.restore();
     done();
   },
 
-  env_var_exists: function(test) {
+  index_html_exists: function(test) {
     test.expect(1);
-
-    process.env.CIRCLE_SHA1 = 'abc123';
 
     var subject = new RolloutIndexTask(config);
 
     subject.run().then(function() {
-      test.ok(grunt.log.ok.calledWith('index.html uploaded with key: "index:abc123"'));
-    }).finally(test.done);
+      test.ok(grunt.log.ok.calledWith('index.html file located: "test/fixtures/dist/index.html"'));
+    })
+    .finally(test.done);
   },
 
-  env_var_does_not_exist: function(test) {
+  index_html_does_not_exist: function(test) {
     test.expect(1);
 
-    delete process.env.CIRCLE_SHA1;
+    config.distDir = 'test/fixtures';
 
     var subject = new RolloutIndexTask(config);
 
     subject.run().catch(function() {
-      test.ok(grunt.log.error.calledWith('Could not determine current git hash.  Please ensure process.env.CIRCLE_SHA1 is specified'));
-    }).finally(test.done);
+      test.ok(grunt.log.error.calledWith('index.html file could not be located: "test/fixtures/index.html"'));
+    })
+    .finally(test.done);
   }
 };
+

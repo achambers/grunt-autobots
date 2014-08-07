@@ -1,0 +1,16 @@
+{
+  "name": "grunt-autobots",
+  "version": "0.0.1-alpha",
+  "dependencies": {
+    "redis": {
+      "version": "0.11.0",
+      "from": "redis@",
+      "resolved": "https://registry.npmjs.org/redis/-/redis-0.11.0.tgz"
+    },
+    "rsvp": {
+      "version": "3.0.9",
+      "from": "rsvp@",
+      "resolved": "https://registry.npmjs.org/rsvp/-/rsvp-3.0.9.tgz"
+    }
+  }
+}

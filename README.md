@@ -6,7 +6,18 @@
 
 Inspired by [Luke Melia][1]'s RailsConf 2014 presentation - [Lightning Fast Deployment of Your Rails-backed JavaScript app][2].
 
-This tool is explicitly designed to be used in conjunction with an [Ember CLI][5] application.
+<sub>And the name?  Well......Transformers are just plain awesome?</sub>
+
+
+##Synopsis
+
+This plugin is designed to aid in the deployment workflow of an [Ember CLI][5] application.  The worflow is designed to follow on from a successful `ember build` command and runs as follows:
+
+- Create an [Ember CLI][5] build
+- Deploy assets to S3
+- Deploy index.html to Redis
+- (At some point afterwards) Activate a released index.html to be the current live version
+
 
 ## Getting Started
 This plugin requires Grunt `~0.4.5`
@@ -23,19 +34,109 @@ Once the plugin has been installed, it may be enabled inside your Gruntfile with
 grunt.loadNpmTasks('grunt-autobots');
 ```
 
-## The "autobots:rollout:index" task
+##Usage
+
+There are three tasks in this plugin designed to work in conjunction with each other.  Use of the plugin should go as follows:
+
+```shell
+$ ember build -e production
+> Built project successfully. Stored in "dist/".
+
+$ grunt autobots:rollout:assets
+> Success
+> Now run:
+> grunt autobots:rollout:index
+
+$ grunt autobots:rollout:index
+> Success
+>
+> To Preview:
+> http://<your-app-url>?key=abcd1234
+>
+> To Activate:
+> grunt autobots:activate --key=abcd1234
+
+$ grunt autobots:activate --key=abcd1234
+> Success
+>
+> Release [abcd1234] successfully activated
+
+```
+
+NB: While [Ember CLI][5] is not specifically required, this plugin assumes the dist directory it is running against to conform to that which is output by the `ember build` command.
+
+
+## "ember build -e production|development"
 
 ### Overview
+
+While this command is not a part of this plugin, it should be run before using the plugin.  `grunt-autobots` expects a dist directory that conforms to what [Ember CLI][5] will output.  It expects to find the following directory structure:
+
+```
+.
++-- dist
+|   +-- assets
+|   |   +-- some.css
+|   |   +-- some.js
+|   |   +-- any-file-files-or-folders
+|   +-- index.html
+```
+
+### Configuration
+
+Because this plugin pushes the assets to a different location than the index.html, we need to prepend the asset locations with the host where they will be stored, in this case, S3.
+
+Therefore, before running this command, make sure you tell the fingerprinting task of Broccoli to prepend the host.
+
+In your Brocfile.js add this:
+
+```js
+var EmberApp = require('ember-cli/lib/broccoli/ember-app');
+
+var app = new EmberApp({
+  fingerprint: {
+    prepend: 'https://s3-eu-west-1.amazonaws.com/my-bucket/'
+  }
+});
+
+module.exports = app.toTree();
+```
+
+## *grunt autobots:rollout:assets*
+
+### Overview
+*[TODO] This task doesn't exist yet*
+
+### Configuration
+*[TODO] This task doesn't exist yet*
+
+
+## *grunt autobots:rollout:index*
+
+### Overview
+
+This task is responsible for pushing your index.html file to a Redis instance.  By default it will connect to Redis on the local machine, unless you specify connection details for another instance.
+
+Once this task has been run, the version of the application can be previewed by adding the query param `?key=<some-key>` to the url of the application.
+
 In your project's Gruntfile, add a section named `autobots` to the data object passed into `grunt.initConfig()`.
 
 ```js
 grunt.initConfig({
   autobots: {
+    appUrl: 'https://my-app.com',
+    distDir: 'dist',
+    hash: '<%= process.env.CIRCLE_SHA1 %>',
+    redis: {
+      host: 'jack.redistogo.com',
+      post: '10728',
+      password: 'bacdf3758329bdbaf5'
+    }
   },
 });
 ```
 
-### Options
+### Configuration
 
 #### appUrl (optional)
 Type: `String`
@@ -47,67 +148,94 @@ A string value that is used to notify the user of where to navigate to, to previ
 Type: `String`
 Default value: `'dist'`
 
-A string value that is used to locate the files to be deployed.  As this tool is specifically written to be used with an [Ember CLI][6] application, by default, it looks to the `dist` directory.
+A string value that is used to locate the files to be deployed.  As this tool is written with [Ember CLI][6] in mind, by default, it looks to the `dist` directory.
 
 #### hash (optional)
 Type: `String`
 Default value: `'<%= process.env.CIRCLE_SHA1 =>'`
 
 A string value that is used to make up the unique key that the index.html file will be stored against in Redis.
-If this value is not provided by the user, autobots:rollout:index will look for the `process.env.CIRCLE_SHA1` variable.  Therefore, alternatively, you can the `CIRCLE_SHA1` environment variable.
 
-**Why `CIRCLE_SHA1`?** - Because I'm deploying my apps from [Circle CI][6] currently and that env var contains the current git hash.
+While ultimately, this value is not intended to be supplied by the user, it is publically available at the moment.
+
+`grunt autobots:rollout:index` stores the current index.html under the key `index:<hash>`.
+
+`<hash>` is intended to be the short SHA of the git commit that `HEAD` is currently pointing to at the time of running this task.
+
+**NB:** At this point in time `<hash>` is derived from an environment variable named `CIRCLE_SHA1`.  This is due to the fact that I am currently using this to deploy apps built by [Circle CI][6] and they make this env var available.  Therefore, in order for this to work, I'd firstly suggest deploying your application to [Circle CI][6].  If that is not an option you will either need to set this config variable or the `process.env.CIRCLE_SHA1` env var to something unique each time you run this task.
 
 **[TODO]** - Retrieve the commit hash of `HEAD` and using this if `CIRCLE_SHA1` does not exist.
 
-#### redis (optional)
-Type: `Object`
-
-##### redis.host
+#### redis.host
 Type: `String`
 Default value: `127.0.0.1`
 
-##### redis.port
+A string value that is used to specify the Redis host.
+
+#### redis.port
 Type: `String`
 Default value: `6379`
 
-##### redis.password
+A string value that is used to specify the Redis port.
+
+#### redis.password
 Type: `String`
 Default value: null
 
+A string value that is used to specify the Redis password.
 
-### Usage Examples
 
-#### General Options
-In this example, the general options describe where the dist directory is located and what the app url is.
+## *grunt autobots:activate*
 
-```js
-grunt.initConfig({
-  autobots: {
-    distDir: 'output/dist',
-    appUrl: 'http://optimusprime.com'
-  },
-});
-```
+### Overview
 
-#### Redis Options
-In this example, the `redis` options describe how to connect to the Redis server.
+This task is responsible for activating an index.html entry to make it the current live version.  This task will look to the same Redis instance that `grunt autobots:rollout:index` pushed the index.html file to.
+
+In your project's Gruntfile, add a section named `autobots` to the data object passed into `grunt.initConfig()`.
 
 ```js
 grunt.initConfig({
   autobots: {
     redis: {
       host: 'jack.redistogo.com',
-      port: '10753',
-      password: 'c6463bda4249fbcad86688'
+      post: '10728',
+      password: 'bacdf3758329bdbaf5'
     }
   },
 });
 ```
 
+### Configuration
+
+#### redis.host
+Type: `String`
+Default value: `127.0.0.1`
+
+A string value that is used to specify the Redis host.
+
+#### redis.port
+Type: `String`
+Default value: `6379`
+
+A string value that is used to specify the Redis port.
+
+#### redis.password
+Type: `String`
+Default value: null
+
+A string value that is used to specify the Redis password.
+
+
+### Command line arguments
+
+#### --key=<some-key>
+
+This command line option is required when running this task.  The `key` must correspond to the unique key of a deployed index.html file.
+
+
 ##Honourable Mentions
 
-The following sites have contributed in some way, shape or form in the creation of this tool.
+The following sites have contributed in some way, shape or form in the creation of this plugin.
 
 - [Framework agnostic, fast zero-downtime Javascript app deployment][3]
 - [Lightning Fast Deployments With Rails (in the Wild).][4]

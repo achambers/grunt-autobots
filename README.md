@@ -228,7 +228,7 @@ A string value that is used to specify the Redis password.
 
 ### Command line arguments
 
-#### --key=<some-key>
+#### --key=\<some-key\>
 
 This command line option is required when running this task.  The `key` must correspond to the unique key of a deployed index.html file.
 

@@ -45,5 +45,23 @@ module.exports = {
   },
   INDEX_ENTRY_DOES_NOT_EXIST_FOR_KEY: {
     message: 'index.html does not exist for key: "{a}"'
-  }
+  },
+  ASSETS_DO_NOT_EXIST: {
+    message: 'no assets exist in assets dir: "{a}"'
+  },
+  S3_ACCESS_KEY_ID_MISSING: {
+    message: 's3.accessKeyId not set'
+  },
+  S3_SECRET_ACCESS_KEY_MISSING: {
+    message: 's3.secretAccessKey not set'
+  },
+  S3_BUCKET_MISSING: {
+    message: 's3.bucket not set'
+  },
+  TO_PUBLISH_INDEX: {
+    message: 'To publish index.html:'
+  },
+  PUBLISH_INDEX_TASK: {
+    message: 'grunt autobots:rollout:index'
+  },
 };

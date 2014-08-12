@@ -11,7 +11,8 @@ exports.rollout_assets = {
     config.s3 = {
       accessKeyId: 'abcd1234',
       secretAccessKey: 'zxcv9876',
-      bucket: 'test-bucket'
+      bucket: 'test-bucket',
+      region: 'eu-west-1'
     };
 
     done();
@@ -119,7 +120,7 @@ exports.rollout_assets = {
   },
 
   s3_config_does_exist: function(test) {
-    test.expect(3);
+    test.expect(4);
 
     var subject = new RolloutAssetsTask(config, {});
 
@@ -128,6 +129,7 @@ exports.rollout_assets = {
     test.equal(result.s3.accessKeyId, 'abcd1234');
     test.equal(result.s3.secretAccessKey, 'zxcv9876');
     test.equal(result.s3.bucket, 'test-bucket');
+    test.equal(result.s3.region, 'eu-west-1');
 
     test.done();
   },
@@ -170,6 +172,20 @@ exports.rollout_assets = {
     var result = subject.getConfig();
 
     test.equal(result, 's3.bucket not set');
+
+    test.done();
+  },
+
+  s3_config_does_exist_but_region_does_not: function(test) {
+    test.expect(1);
+
+    delete config.s3.region;
+
+    var subject = new RolloutAssetsTask(config, {});
+
+    var result = subject.getConfig();
+
+    test.equal(result.s3.region, 'us-east-1');
 
     test.done();
   },

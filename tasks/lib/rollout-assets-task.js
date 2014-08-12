@@ -25,6 +25,7 @@ RolloutAssetsTask.prototype = {
         var s3AccessKeyId = config.s3.accessKeyId;
         var s3SecretAccessKey = config.s3.secretAccessKey;
         var s3Bucket = config.s3.bucket;
+        var s3Region = config.s3.region;
 
         if (grunt.option('debug')) {
           grunt.log.debug('Processing the following local assets:');
@@ -37,7 +38,8 @@ RolloutAssetsTask.prototype = {
         var client = self._s3.createClient({
           s3Options: {
             accessKeyId: s3AccessKeyId,
-            secretAccessKey: s3SecretAccessKey
+            secretAccessKey: s3SecretAccessKey,
+            region: s3Region
           }
         });
 
@@ -119,7 +121,8 @@ RolloutAssetsTask.prototype = {
     var defaultS3Config = {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      bucket: process.env.AWS_BUCKET
+      bucket: process.env.AWS_BUCKET,
+      region: 'us-east-1'
     };
     var s3Config = autobotsConfig.s3 || {};
 

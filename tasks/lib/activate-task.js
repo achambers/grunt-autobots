@@ -24,10 +24,12 @@ ActivateTask.prototype = {
 
         grunt.log.debug(MESSAGES.USING_KEY.message.replace('{a}', redisKey));
 
-        var client = redis.createClient();
+        var client = redis.createClient(config.redisPort, config.redisHost, {
+          auth_pass: config.redisPassword
+        });
 
         client.on('ready', function() {
-          grunt.log.debug('Connected to Redis');
+          grunt.log.ok(MESSAGES.CONNECTED_TO_REDIS.message.replace('{a}', config.redisHost).replace('{b}', config.redisPort));
         });
 
         client.on('error', function(error) {
@@ -62,13 +64,21 @@ ActivateTask.prototype = {
   getConfig: function() {
     var autobotsConfig = this._config;
     var key = autobotsConfig.key;
+    var redisConfig = autobotsConfig.redis || {
+      host: '127.0.0.1',
+      port: '6379',
+      password: null
+    };
 
     if (!key) {
       return MESSAGES.KEY_NOT_SUPPLIED.message;
     }
 
     return {
-      key: key
+      key: key,
+      redisHost: redisConfig.host,
+      redisPort: redisConfig.port,
+      redisPassword: redisConfig.password
     }
   }
 };

@@ -105,10 +105,48 @@ module.exports = app.toTree();
 ## *grunt autobots:rollout:assets*
 
 ### Overview
-*[TODO] This task doesn't exist yet*
+
+This task is responsible for pushing your assets to S3.  For now, it only looks for files with a {js,css,png,gif,jpg} extension.
+
+This task expects your assets to be located in an `assets` folder inside your specified `dist` directory.
+
+In your project's Gruntfile, add a section named `autobots` to the data object passed into `grunt.initConfig()`.
+
+```js
+grunt.initConfig({
+  autobots: {
+    distDir: 'dist',
+    s3: {
+      accessKeyId: '1234',
+      secretAccessKey: 'abcd',
+      bucket: 'my-bucket'
+    }
+  },
+});
+```
 
 ### Configuration
-*[TODO] This task doesn't exist yet*
+
+#### distDir (optional)
+Type: `String`
+Default value: `'dist'`
+
+A string value that is used to locate the files to be deployed.  As this tool is written with [Ember CLI][6] in mind, by default, it looks to the `dist` directory.
+
+#### s3.accessKeyId (required)
+Type: `String`
+
+A string value that is the AWS access key that has access to S3.
+
+#### s3.secretAccessKey (required)
+Type: `String`
+
+A string value that is the AWS secret that has access to S3.
+
+#### s3.bucket (required)
+Type: `String`
+
+A string value that is used to determine which bucket to store the assets in.
 
 
 ## *grunt autobots:rollout:index*
@@ -126,7 +164,6 @@ grunt.initConfig({
   autobots: {
     appUrl: 'https://my-app.com',
     distDir: 'dist',
-    hash: '<%= process.env.CIRCLE_SHA1 %>',
     redis: {
       host: 'jack.redistogo.com',
       post: '10728',
@@ -150,39 +187,33 @@ Default value: `'dist'`
 
 A string value that is used to locate the files to be deployed.  As this tool is written with [Ember CLI][6] in mind, by default, it looks to the `dist` directory.
 
-#### hash (optional)
-Type: `String`
-Default value: `'<%= process.env.CIRCLE_SHA1 =>'`
-
-A string value that is used to make up the unique key that the index.html file will be stored against in Redis.
-
-While ultimately, this value is not intended to be supplied by the user, it is publically available at the moment.
-
-`grunt autobots:rollout:index` stores the current index.html under the key `index:<hash>`.
-
-`<hash>` is intended to be the short SHA of the git commit that `HEAD` is currently pointing to at the time of running this task.
-
-**NB:** At this point in time `<hash>` is derived from an environment variable named `CIRCLE_SHA1`.  This is due to the fact that I am currently using this to deploy apps built by [Circle CI][6] and they make this env var available.  Therefore, in order for this to work, I'd firstly suggest deploying your application to [Circle CI][6].  If that is not an option you will either need to set this config variable or the `process.env.CIRCLE_SHA1` env var to something unique each time you run this task.
-
-**[TODO]** - Retrieve the commit hash of `HEAD` and using this if `CIRCLE_SHA1` does not exist.
-
-#### redis.host
+#### redis.host (optional)
 Type: `String`
 Default value: `127.0.0.1`
 
 A string value that is used to specify the Redis host.
 
-#### redis.port
+#### redis.port (optional)
 Type: `String`
 Default value: `6379`
 
 A string value that is used to specify the Redis port.
 
-#### redis.password
+#### redis.password (optional)
 Type: `String`
 Default value: null
 
 A string value that is used to specify the Redis password.
+
+### Side Note
+
+`grunt autobots:rollout:index` stores the current index.html under the key `index:<hash>`.
+
+`<hash>` is intended to be the short SHA of the git commit that `HEAD` is currently pointing to at the time of running this task.
+
+At this point in time `<hash>` is derived from an environment variable named `CIRCLE_SHA1`.  This is due to the fact that I am currently using this to deploy apps built by [Circle CI][6] and they make this env var available.  Therefore, in order for this to work, I'd firstly suggest deploying your application to [Circle CI][6].  If that is not an option you will either need to set this config variable or the `process.env.CIRCLE_SHA1` env var to something unique each time you run this task.
+
+**[TODO]** - Retrieve the commit hash of `HEAD` and using this if `CIRCLE_SHA1` does not exist.
 
 
 ## *grunt autobots:activate*
@@ -207,19 +238,19 @@ grunt.initConfig({
 
 ### Configuration
 
-#### redis.host
+#### redis.host (optional)
 Type: `String`
 Default value: `127.0.0.1`
 
 A string value that is used to specify the Redis host.
 
-#### redis.port
+#### redis.port (optional)
 Type: `String`
 Default value: `6379`
 
 A string value that is used to specify the Redis port.
 
-#### redis.password
+#### redis.password (optional)
 Type: `String`
 Default value: null
 
@@ -244,7 +275,11 @@ The following sites have contributed in some way, shape or form in the creation 
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
-_(Nothing yet)_
+- [v0.0.4][10]
+- [v0.0.3-alpha][9]
+- [v0.0.2-alpha][8]
+- [v0.0.1-alpha][7]
+
 
 [1]: http://www.lukemelia.com "Luke Melia"
 [2]: http://www.confreaks.com/videos/3324-railsconf-lightning-fast-deployment-of-your-rails-backed-javascript-app "Lightning Fast Deployment of Your Rails-backed JavaScript app"
@@ -252,3 +287,7 @@ _(Nothing yet)_
 [4]: http://blog.abuiles.com/blog/2014/07/08/lightning-fast-deployments-with-rails/ "Lightning Fast Deployments With Rails (in the Wild)."
 [5]: http://ember-cli.com "Ember CLI"
 [6]: https://circleci.com/ "Circle CI"
+[7]: https://github.com/achambers/grunt-autobots/releases/tag/v.0.0.1-alpha "Release v.0.0.1-alpha"
+[8]: https://github.com/achambers/grunt-autobots/releases/tag/v.0.0.2-alpha "Release v.0.0.2-alpha"
+[9]: https://github.com/achambers/grunt-autobots/releases/tag/v.0.0.3-alpha "Release v.0.0.3-alpha"
+[10]: https://github.com/achambers/grunt-autobots/releases/tag/v.0.0.4 "Release v.0.0.4"

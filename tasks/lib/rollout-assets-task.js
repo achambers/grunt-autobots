@@ -71,7 +71,8 @@ RolloutAssetsTask.prototype = {
                   localFile: distDir + '/' + asset,
                   s3Params: {
                     Bucket: s3Bucket,
-                    Key: asset
+                    Key: asset,
+                    ACL: 'public-read'
                   }
                 });
 

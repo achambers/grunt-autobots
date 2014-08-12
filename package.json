@@ -1,7 +1,7 @@
 {
   "name": "grunt-autobots",
   "description": "And deploy tool for Ember-CLI",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "homepage": "https://github.com/achambers/autobots",
   "author": {
     "name": "Aaron Chambers",
@@ -41,6 +41,7 @@
   ],
   "dependencies": {
     "redis": "^0.11.0",
-    "rsvp": "^3.0.9"
+    "rsvp": "^3.0.9",
+    "s3": "^3.1.3"
   }
 }

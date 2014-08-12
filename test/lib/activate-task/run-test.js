@@ -1,7 +1,6 @@
 'use strict';
 
 var grunt = require('grunt');
-var sinon = require('sinon');
 var ActivateTask = require('../../../tasks/lib/activate-task');
 var config;
 var redis = require('redis');
